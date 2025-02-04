@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DevSecOps Security Score Card</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid black;
+            padding: 10px;
+            text-align: center;
+            cursor: pointer;
+        }
+        th {
+            background-color: #f4f4f4;
+        }
+        .selected {
+            background-color: blue;
+            color: white;
+        }
+        input[type="radio"] {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <h2>DevSecOps Security Score Card</h2>
+    <table>
+        <tr>
+            <th>Dimension</th>
+            <th>Level 1 (Initial)</th>
+            <th>Level 2 (Developed/Defined)</th>
+            <th>Level 3 (Managed/Quantitatively Managed)</th>
+            <th>Level 4 (Optimized)</th>
+        </tr>
+        <script>
+            const dimensions = [
+                "Security Skills and Knowledge",
+                "Developer Enablement",
+                "Secure Design and Threat Assessment",
+                "Automated Security Practices",
+                "Software Supply Chain Security"
+            ];
+            
+            const levelLabels = [
+                [
+                    "Informal and reactive security training",
+                    "Regular training and a basic knowledge base",
+                    "Advanced security training with hands-on learning",
+                    "Mature training program that’s fully integrated with the SDLC"
+                ],
+                [
+                    "Tasks performed manually based on tickets/requests",
+                    "Testing is included throughout the SDLC and application environments are standardized",
+                    "Security tools offered as a service, and Infrastructure as Code (IaC) automates application environment creation",
+                    "Security and app environments are reusable in the IDP; engineering handles issue triage"
+                ],
+                [
+                    "Secure design reviews are ad hoc, and informal threat monitoring is conducted",
+                    "Cybersecurity teams conduct threat modeling and output security requirements",
+                    "Threat modeling is shared across the SDLC and secure-by-design principles are regularly upheld",
+                    "Security requirements are continuously, automatically monitored. Engineering oversees design and threat review"
+                ],
+                [
+                    "Application security testing (AST) is used, but completed post-application build",
+                    "AST is automated and integrated into tooling, but results are reviewed outside of SDLC tools",
+                    "Automation is integrated throughout the SDLC. Insights are presented within developer tooling",
+                    "AST tools are the default and continuously report potential issues to management systems"
+                ],
+                [
+                    "Source control management (SCM) is utilized",
+                    "Reduced risk through the introduction of software composition analysis (SCA)",
+                    "Automated processes for build and delivery. SDLC tools are advanced",
+                    "Security is prioritized throughout the entire SDLC with multiple checks"
+                ]
+            ];
+            
+            document.write(dimensions.map((dim, index) => `
+                <tr>
+                    <td>${dim}</td>
+                    ${levelLabels[index].map((label, levelIndex) => `
+                        <td onclick="selectOption(${index}, ${levelIndex + 1}, this)">
+                            <input type="radio" name="dim${index}" value="${levelIndex + 1}" required>
+                            ${label}
+                        </td>
+                    `).join('')}
+                </tr>
+            `).join(""));
+        </script>
+    </table>
+    <br>
+    <p id="scoreOutput">Your score will appear here.</p>
+    <br>
+    <button onclick="resetSelection()">Reset</button>
+    
+    <script>
+        function selectOption(dimIndex, value, cell) {
+            document.querySelectorAll(`input[name=dim${dimIndex}]`).forEach(input => input.checked = false);
+            document.querySelectorAll(`td[selected-dim='${dimIndex}']`).forEach(td => td.classList.remove("selected"));
+            
+            cell.querySelector(`input[name=dim${dimIndex}]`).checked = true;
+            cell.classList.add("selected");
+            cell.setAttribute("selected-dim", dimIndex);
+            
+            calculateScore();
+        }
+        
+        function calculateScore() {
+            let totalScore = 0;
+            let count = 0;
+            let allSelected = true;
+            
+            dimensions.forEach((_, index) => {
+                const selected = document.querySelector(`input[name=dim${index}]:checked`);
+                if (selected) {
+                    totalScore += parseInt(selected.value);
+                    count++;
+                } else {
+                    allSelected = false;
+                }
+            });
+            
+            if (!allSelected) {
+                document.getElementById("scoreOutput").innerText = "Please select an option for each dimension.";
+                return;
+            }
+            
+            let averageScore = (totalScore / count).toFixed(2);
+            document.getElementById("scoreOutput").innerText = `Your DevSecOps Maturity Score: ${averageScore}`;
+        }
+        
+        function resetSelection() {
+            document.querySelectorAll("input[type=radio]").forEach(input => input.checked = false);
+            document.querySelectorAll("td").forEach(td => td.classList.remove("selected"));
+            document.getElementById("scoreOutput").innerText = "Your score will appear here.";
+        }
+    </script>
+</body>
+</html>
